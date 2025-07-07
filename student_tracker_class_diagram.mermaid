@@ -1,0 +1,122 @@
+classDiagram
+    class Student {
+        -int id
+        -String firstName
+        -String lastName
+        -int age
+        -double grade
+        +Student()
+        +Student(String firstName, String lastName, int age, double grade)
+        +getId() int
+        +setId(int id)
+        +getFirstName() String
+        +setFirstName(String firstName)
+        +getLastName() String
+        +setLastName(String lastName)
+        +getAge() int
+        +setAge(int age)
+        +getGrade() double
+        +setGrade(double grade)
+        +toString() String
+    }
+
+    class DatabaseConnection {
+        -String URL
+        -String USERNAME
+        -String PASSWORD
+        -Connection connection
+        +getInstance() DatabaseConnection
+        +getConnection() Connection
+        +closeConnection()
+        +executeQuery(String sql, Object... params) ResultSet
+        +executeUpdate(String sql, Object... params) int
+    }
+
+    class StudentDAO {
+        -DatabaseConnection dbConnection
+        +StudentDAO()
+        +addStudent(Student student) boolean
+        +updateStudent(Student student) boolean
+        +deleteStudent(int id) boolean
+        +getStudentById(int id) Student
+        +getAllStudents() List~Student~
+        +searchStudents(String criteria, Object value) List~Student~
+        +sortStudents(String field, String order) List~Student~
+        +getStudentCount() int
+        +getStudentsPaginated(int offset, int limit) List~Student~
+    }
+
+    class StudentService {
+        -StudentDAO studentDAO
+        +StudentService()
+        +addStudent(Student student) boolean
+        +updateStudent(Student student) boolean
+        +deleteStudent(int id) boolean
+        +getStudentById(int id) Student
+        +getAllStudents() List~Student~
+        +searchStudents(String criteria, Object value) List~Student~
+        +sortStudents(String field, String order) List~Student~
+        +calculateClassAverage() double
+        +getAgeStatistics() Map~String, Integer~
+        +exportToCSV(String filename) boolean
+        +importFromCSV(String filename) boolean
+        +exportToJSON(String filename) boolean
+        +importFromJSON(String filename) boolean
+    }
+
+    class AuthenticationService {
+        -Map~String, String~ users
+        -String currentUser
+        +login(String username, String password) boolean
+        +logout()
+        +isAuthenticated() boolean
+        +getCurrentUser() String
+        +addUser(String username, String password) boolean
+    }
+
+    class ConsoleUI {
+        -StudentService studentService
+        -AuthenticationService authService
+        -Scanner scanner
+        +ConsoleUI()
+        +start()
+        +showMainMenu()
+        +handleUserChoice(int choice)
+        +displayStudents(List~Student~ students)
+        +inputStudent() Student
+        +showStatistics()
+        +handleImportExport()
+        +showSearchMenu()
+        +showSortMenu()
+    }
+
+    class BackupService {
+        -StudentService studentService
+        -Timer timer
+        +BackupService()
+        +startAutoBackup(long interval)
+        +stopAutoBackup()
+        +performBackup() boolean
+        +restoreBackup(String filename) boolean
+    }
+
+    class FileManager {
+        +exportToCSV(List~Student~ students, String filename) boolean
+        +importFromCSV(String filename) List~Student~
+        +exportToJSON(List~Student~ students, String filename) boolean
+        +importFromJSON(String filename) List~Student~
+        +exportToXML(List~Student~ students, String filename) boolean
+        +importFromXML(String filename) List~Student~
+    }
+
+    class Main {
+        +main(String[] args)
+    }
+
+    StudentDAO --> DatabaseConnection
+    StudentService --> StudentDAO
+    ConsoleUI --> StudentService
+    ConsoleUI --> AuthenticationService
+    BackupService --> StudentService
+    StudentService --> FileManager
+    Main --> ConsoleUI
