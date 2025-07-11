@@ -23,6 +23,8 @@ public class UserController implements HttpHandler {
 
         if (method.equals("POST") && path.equals("/login")) {
             handleLogin(exchange);
+        } else if (method.equals("POST") && path.equals("/register")) {
+            handleRegister(exchange);
         } else {
             sendResponse(exchange, 404, "Not Found");
         }
@@ -41,6 +43,38 @@ public class UserController implements HttpHandler {
             sendResponse(exchange, 200, "Login successful");
         } else {
             sendResponse(exchange, 401, "Invalid credentials");
+        }
+    }
+
+    private void handleRegister(HttpExchange exchange) throws IOException {
+        // Parse request body
+        String body = new String(exchange.getRequestBody().readAllBytes());
+        Map<String, String> params = parseQuery(body);
+
+        String username = params.get("username");
+        String password = params.get("password");
+
+        // Validate input
+        if (username == null || password == null || username.trim().isEmpty() || password.trim().isEmpty()) {
+            sendResponse(exchange, 400, "Username and password are required");
+            return;
+        }
+
+        // Check if user already exists
+        User existingUser = userDAO.getUserByUsername(username);
+        if (existingUser != null) {
+            sendResponse(exchange, 409, "User already exists");
+            return;
+        }
+
+        // Create new user
+        User newUser = new User(username, password);
+        boolean success = userDAO.addUser(newUser);
+
+        if (success) {
+            sendResponse(exchange, 200, "Registration successful");
+        } else {
+            sendResponse(exchange, 500, "Registration failed");
         }
     }
 

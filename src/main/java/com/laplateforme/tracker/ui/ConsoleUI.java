@@ -189,30 +189,101 @@ public class ConsoleUI {
 
     private void searchStudent() {
         System.out.println("\n=== RECHERCHER UN ÉTUDIANT ===");
-        System.out.print("Nom de l'étudiant à rechercher: ");
-        String name = scanner.nextLine();
-
-        List<Student> results = studentService.searchStudents("name", name);
-        if (results.isEmpty()) {
-            System.out.println("Aucun étudiant trouvé avec ce nom.");
-        } else {
-            for (Student student : results) {
-                System.out.println(student);
+        System.out.println("1. Rechercher par prénom");
+        System.out.println("2. Rechercher par nom");
+        System.out.println("3. Rechercher par âge");
+        System.out.println("4. Rechercher par note");
+        System.out.print("Votre choix: ");
+        
+        try {
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consommer la ligne
+            
+            String criteria = "";
+            Object value = null;
+            
+            switch (choice) {
+                case 1 -> {
+                    System.out.print("Prénom à rechercher: ");
+                    criteria = "first_name";
+                    value = scanner.nextLine();
+                }
+                case 2 -> {
+                    System.out.print("Nom à rechercher: ");
+                    criteria = "last_name";
+                    value = scanner.nextLine();
+                }
+                case 3 -> {
+                    System.out.print("Âge à rechercher: ");
+                    criteria = "age";
+                    value = Integer.parseInt(scanner.nextLine());
+                }
+                case 4 -> {
+                    System.out.print("Note à rechercher: ");
+                    criteria = "grade";
+                    value = Double.parseDouble(scanner.nextLine());
+                }
+                default -> {
+                    System.out.println("Choix invalide!");
+                    return;
+                }
             }
+            
+            List<Student> results = studentService.searchStudents(criteria, value);
+            if (results.isEmpty()) {
+                System.out.println("Aucun étudiant trouvé avec ce critère.");
+            } else {
+                System.out.println("Résultats trouvés (" + results.size() + "):");
+                for (Student student : results) {
+                    System.out.println(student);
+                }
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Erreur: Veuillez entrer un nombre valide.");
+            scanner.nextLine();
+        } catch (NumberFormatException e) {
+            System.out.println("Erreur: Veuillez entrer un nombre valide pour l'âge/note.");
         }
     }
 
     private void advancedSearch() {
         System.out.println("\n=== RECHERCHE AVANCÉE ===");
-        System.out.print("Critère de recherche (nom, email, etc.): ");
+        System.out.println("Critères disponibles: first_name, last_name, age, grade");
+        System.out.print("Critère de recherche: ");
         String criterion = scanner.nextLine();
+        
+        // Validate criterion
+        if (!criterion.matches("first_name|last_name|age|grade")) {
+            System.out.println("Critère invalide. Utilisez: first_name, last_name, age, ou grade");
+            return;
+        }
+        
         System.out.print("Valeur: ");
         String value = scanner.nextLine();
+        
+        Object searchValue = value;
+        // Convert value based on criterion
+        if (criterion.equals("age")) {
+            try {
+                searchValue = Integer.parseInt(value);
+            } catch (NumberFormatException e) {
+                System.out.println("Erreur: L'âge doit être un nombre entier.");
+                return;
+            }
+        } else if (criterion.equals("grade")) {
+            try {
+                searchValue = Double.parseDouble(value);
+            } catch (NumberFormatException e) {
+                System.out.println("Erreur: La note doit être un nombre décimal.");
+                return;
+            }
+        }
 
-        List<Student> results = studentService.searchStudents(criterion, value);
+        List<Student> results = studentService.searchStudents(criterion, searchValue);
         if (results.isEmpty()) {
             System.out.println("Aucun étudiant trouvé avec ce critère.");
         } else {
+            System.out.println("Résultats trouvés (" + results.size() + "):");
             for (Student student : results) {
                 System.out.println(student);
             }
@@ -221,15 +292,30 @@ public class ConsoleUI {
 
     private void sortStudents() {
         System.out.println("\n=== TRIER LES ÉTUDIANTS ===");
-        System.out.print("Critère de tri (nom, date d'inscription, etc.): ");
+        System.out.println("Critères de tri disponibles: id, first_name, last_name, age, grade");
+        System.out.print("Critère de tri: ");
         String criterion = scanner.nextLine();
+        
+        // Validate criterion to prevent SQL injection
+        if (!criterion.matches("id|first_name|last_name|age|grade")) {
+            System.out.println("Critère invalide. Utilisez: id, first_name, last_name, age, ou grade");
+            return;
+        }
+        
         System.out.print("Ordre (asc/desc): ");
         String order = scanner.nextLine();
+        
+        // Validate order
+        if (!order.equalsIgnoreCase("asc") && !order.equalsIgnoreCase("desc")) {
+            System.out.println("Ordre invalide. Utilisez: asc ou desc");
+            return;
+        }
 
-        List<Student> sortedStudents = studentService.sortStudents(criterion, order);
+        List<Student> sortedStudents = studentService.sortStudents(criterion, order.toUpperCase());
         if (sortedStudents.isEmpty()) {
             System.out.println("Aucun étudiant trouvé.");
         } else {
+            System.out.println("Étudiants triés par " + criterion + " (" + order + "):");
             for (Student student : sortedStudents) {
                 System.out.println(student);
             }

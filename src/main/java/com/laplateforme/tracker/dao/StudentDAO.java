@@ -19,10 +19,13 @@ public class StudentDAO {
     public boolean addStudent(Student student) {
         String sql = "INSERT INTO student (first_name, last_name, age, grade) VALUES (?, ?, ?, ?)";
         try {
-            int rowsAffected = dbConnection.executeUpdate(sql, 
-                student.getFirstName(), student.getLastName(), student.getAge(), student.getGrade());
+            System.out.println("StudentDAO - Adding student: " + student);
+            int rowsAffected = dbConnection.executeUpdate(sql,
+                    student.getFirstName(), student.getLastName(), student.getAge(), student.getGrade());
+            System.out.println("StudentDAO - Rows affected: " + rowsAffected);
             return rowsAffected > 0;
         } catch (SQLException e) {
+            System.out.println("StudentDAO - SQL Error adding student: " + e.getMessage());
             LOGGER.log(Level.SEVERE, "Erreur lors de l'ajout de l'étudiant", e);
             return false;
         }
@@ -31,11 +34,14 @@ public class StudentDAO {
     public boolean updateStudent(Student student) {
         String sql = "UPDATE student SET first_name = ?, last_name = ?, age = ?, grade = ? WHERE id = ?";
         try {
+            System.out.println("StudentDAO - Updating student: " + student);
             int rowsAffected = dbConnection.executeUpdate(sql,
-                student.getFirstName(), student.getLastName(), student.getAge(), 
-                student.getGrade(), student.getId());
+                    student.getFirstName(), student.getLastName(), student.getAge(),
+                    student.getGrade(), student.getId());
+            System.out.println("StudentDAO - Rows affected: " + rowsAffected);
             return rowsAffected > 0;
         } catch (SQLException e) {
+            System.out.println("StudentDAO - SQL Error updating student: " + e.getMessage());
             LOGGER.log(Level.SEVERE, "Erreur lors de la mise à jour de l'étudiant", e);
             return false;
         }
@@ -122,11 +128,10 @@ public class StudentDAO {
 
     private Student mapResultSetToStudent(ResultSet rs) throws SQLException {
         return new Student(
-            rs.getInt("id"),
-            rs.getString("first_name"),
-            rs.getString("last_name"),
-            rs.getInt("age"),
-            rs.getDouble("grade")
-        );
+                rs.getInt("id"),
+                rs.getString("first_name"),
+                rs.getString("last_name"),
+                rs.getInt("age"),
+                rs.getDouble("grade"));
     }
 }

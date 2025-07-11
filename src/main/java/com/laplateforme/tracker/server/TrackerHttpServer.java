@@ -19,6 +19,7 @@ public class TrackerHttpServer {
         server.createContext("/", new RootHandler());
         server.createContext("/health", new HealthHandler());
         server.createContext("/login", new UserController());
+        server.createContext("/register", new UserController());
         server.createContext("/students", new StudentController());
         server.setExecutor(null);
         server.start();

@@ -39,8 +39,3 @@ Rechercher un étudiant par ID
 Tri des étudiants
 Recherche avancée
 Statistiques
-Import/Export (CSV, XML, JSON)
-Pagination
-Gestion d'erreurs améliorée
-Système d'authentification
-Sauvegarde automatique
